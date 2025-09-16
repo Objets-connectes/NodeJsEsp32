@@ -1,0 +1,42 @@
+version: "3.9"
+services:
+  app:
+    build: ./app
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - iotnet
+  mongo:
+    image: mongo:6
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - iotnet
+  mongo-express:
+    image: mongo-express:1.0.2-20
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_BASICAUTH=false
+    depends_on:
+      - mongo
+    networks:
+      - iotnet
+
+volumes:
+  mongo_data:
+
+networks:
+  iotnet:
+    driver: bridge
