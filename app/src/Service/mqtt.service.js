@@ -1,9 +1,9 @@
 import mqtt from 'mqtt';
 import pino from "pino";
 
-import { saveGpsData } from './gpsService.js';
-import { saveEspInfo } from './espService.js';
-import { saveGatewayStatus } from './gatewayService.js';
+import { saveGpsData } from '../repository/gps.repository.js';
+import { saveEspInfo } from '../repository/esp.repository.js';
+import { saveGatewayStatus } from '../repository/gateway.repository.js';
 
 const log = pino({ level: process.env.LOG_LEVEL });
 
@@ -45,7 +45,6 @@ export function startMqtt() {
           break;
           
         case TOPIC_GATEWAY:
-          // Le service Gateway gère le non-JSON, on envoie la string brute
           doc = await saveGatewayStatus(messageString);
           log.info({ data: doc }, 'Données (Gateway) sauvegardées.');
           break;

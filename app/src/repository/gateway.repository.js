@@ -1,4 +1,4 @@
-import { getDB } from "./db.js";
+import { getDB } from "../database/db.js";
 
 const COLLECTION = process.env.COLLECTION_GATEWAY || "gateway";
 
