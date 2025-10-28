@@ -41,8 +41,39 @@ services:
     networks: 
       - iotnet
 
+  # --- NOUVEAUX SERVICES CI-DESSOUS ---
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000" # Sur le port 3001
+    networks:
+      - iotnet
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      # Installe le bon plugin (JSON/API)
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
+    depends_on:
+      - mongo
+      - mongo-api # Attend que notre API soit prête
+
+  mongo-api: # <-- NOTRE NOUVEAU "TRADUCTEUR"
+    build: ./mongo-api # Nous allons créer ce dossier
+    container_name: mongo-api
+    restart: unless-stopped
+    networks:
+      - iotnet
+    # Pas besoin de "ports" car seul Grafana lui parle
+    # sur le réseau interne "iotnet"
+    depends_on:
+      - mongo
+
 volumes:
   mongo_data:
+  grafana_data: {}
 
 networks:
   iotnet:
