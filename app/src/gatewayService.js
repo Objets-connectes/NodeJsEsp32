@@ -15,15 +15,17 @@ function parseGatewayMessage(str) {
       status: typeof j.status === "string" ? j.status : null,
       ip: typeof j.ip === "string" ? j.ip : null,
       rssi: j.rssi !== undefined ? Number(j.rssi) : null,
-      raw: j
+      raw: j,
     };
   } catch {
-    const m = t.match(/^(Connected|Disconnected),\s*IP:\s*([^,]+),\s*RSSI:\s*(-?\d+)dBm$/i);
+    const m = t.match(
+      /^(Connected|Disconnected),\s*IP:\s*([^,]+),\s*RSSI:\s*(-?\d+)dBm$/i
+    );
     if (m) {
       return {
         status: m[1][0].toUpperCase() + m[1].slice(1).toLowerCase(),
         ip: m[2].trim(),
-        rssi: Number(m[3])
+        rssi: Number(m[3]),
       };
     }
     return { raw: t };
@@ -40,9 +42,10 @@ export async function saveGatewayStatus(payload) {
 
 export async function getLastGateway(limit = 20) {
   const db = getDB();
-  return db.collection(COLLECTION)
-           .find()
-           .sort({ ts_insert: -1 })
-           .limit(limit)
-           .toArray();
+  return db
+    .collection(COLLECTION)
+    .find()
+    .sort({ ts_insert: -1 })
+    .limit(limit)
+    .toArray();
 }

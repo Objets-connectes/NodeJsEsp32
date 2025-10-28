@@ -1,42 +1,65 @@
-import mqtt from "mqtt";
+import mqtt from 'mqtt';
 import pino from "pino";
-import { saveGpsData } from "./gpsService.js";
-import { saveEspInfo } from "./espService.js";
-import { saveGatewayStatus } from "./gatewayService.js";
 
-const log = pino({ level: process.env.LOG_LEVEL || "info" });
+import { saveGpsData } from './gpsService.js';
+import { saveEspInfo } from './espService.js';
+import { saveGatewayStatus } from './gatewayService.js';
+
+const log = pino({ level: process.env.LOG_LEVEL });
+
 
 export function startMqtt() {
-  const url = `mqtt://${process.env.MQTT_HOST}:${process.env.MQTT_PORT}`;
-  const client = mqtt.connect(url);
+  const brokerUrl = process.env.MQTT_BROKER_URL ;
+  const client = mqtt.connect(brokerUrl);
 
-  client.on("connect", () => {
-    log.info(`Connected to MQTT broker at ${url}`);
-    client.subscribe(["gpsCoord", "espInfo", "gateway"], (err) => {
-      if (err) log.error({ err }, "Failed to subscribe topics");
-      else log.info("Subscribed to gpsCoord, espInfo, gateway");
+  client.on('connect', () => {
+    log.info(`Client MQTT connecté à ${brokerUrl}`);
+    
+    const topics = [TOPIC_GPS, TOPIC_ESP, TOPIC_GATEWAY];
+    client.subscribe(topics, (err) => {
+      if (!err) {
+        log.info(`Abonné aux topics: ${topics.join(', ')}`);
+      } else {
+        log.error(err, "Échec de l'abonnement MQTT");
+      }
     });
   });
 
-  client.on("message", async (topic, message) => {
+  client.on('message', async (topic, message) => {
+    log.info('---------------------------------');
+    log.info(`Message reçu du topic ${topic}:`);
+    const messageString = message.toString();
+    log.info(messageString);
+
     try {
-      const payloadStr = message.toString();
-      if (topic === "gpsCoord") {
-        const json = JSON.parse(payloadStr);
-        const saved = await saveGpsData(json);
-        log.info({ saved }, "GPS data saved");
-      } else if (topic === "espInfo") {
-        const json = JSON.parse(payloadStr);
-        const saved = await saveEspInfo(json);
-        log.info({ saved }, "ESP info saved");
-      } else if (topic === "gateway") {
-        const saved = await saveGatewayStatus(payloadStr);
-        log.info({ saved }, "Gateway status saved");
+      let doc;
+      switch (topic) {
+        case TOPIC_GPS:
+          doc = await saveGpsData(JSON.parse(messageString));
+          log.info({ data: doc }, 'Données (GPS) sauvegardées.');
+          break;
+          
+        case TOPIC_ESP:
+          doc = await saveEspInfo(JSON.parse(messageString));
+          log.info({ data: doc }, 'Données (ESP) sauvegardées.');
+          break;
+          
+        case TOPIC_GATEWAY:
+          // Le service Gateway gère le non-JSON, on envoie la string brute
+          doc = await saveGatewayStatus(messageString);
+          log.info({ data: doc }, 'Données (Gateway) sauvegardées.');
+          break;
+          
+        default:
+          log.warn(`Aucun gestionnaire pour le topic ${topic}`);
       }
     } catch (err) {
-      log.error({ err, topic }, "Failed to process MQTT message");
+      log.error(err, 'ERREUR LORS DU TRAITEMENT DU MESSAGE');
     }
+    log.info('---------------------------------');
   });
 
-  return client;
+  client.on('error', (err) => {
+    log.error(err, 'Erreur client MQTT:');
+  });
 }

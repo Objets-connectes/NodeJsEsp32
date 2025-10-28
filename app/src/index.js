@@ -7,7 +7,9 @@ import routes from "./routes.js";
 
 const log = pino({ level: process.env.LOG_LEVEL || "info" });
 
+
 async function main() {
+  
   await connectDB();
   startMqtt();
 

@@ -25,7 +25,7 @@ export async function saveEspInfo(data) {
     wifi_ssid: typeof data.wifi_ssid === "string" ? data.wifi_ssid : null,
     wifi_ip: typeof data.wifi_ip === "string" ? data.wifi_ip : null,
     wifi_rssi: data.wifi_rssi !== undefined ? Number(data.wifi_rssi) : null,
-    ts_insert: new Date()
+    ts_insert: new Date(),
   };
   await db.collection(COLLECTION).insertOne(doc);
   return doc;
@@ -33,9 +33,10 @@ export async function saveEspInfo(data) {
 
 export async function getLastEsp(limit = 20) {
   const db = getDB();
-  return db.collection(COLLECTION)
-           .find()
-           .sort({ ts_insert: -1 })
-           .limit(limit)
-           .toArray();
+  return db
+    .collection(COLLECTION)
+    .find()
+    .sort({ ts_insert: -1 })
+    .limit(limit)
+    .toArray();
 }

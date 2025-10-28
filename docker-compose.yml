@@ -33,6 +33,13 @@ services:
       - mongo
     networks:
       - iotnet
+  mqtt:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto-broker
+    ports:
+      - "1883:1883"
+    networks: 
+      - iotnet
 
 volumes:
   mongo_data:

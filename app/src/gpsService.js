@@ -13,7 +13,7 @@ export async function saveGpsData(data) {
     satellites: Number(data.satellites),
     hdop: Number(data.hdop),
     datetime: new Date(data.datetime),
-    ts_insert: new Date()
+    ts_insert: new Date(),
   };
   await db.collection(COLLECTION).insertOne(doc);
   return doc;
@@ -21,9 +21,10 @@ export async function saveGpsData(data) {
 
 export async function getLastGps(limit = 10) {
   const db = getDB();
-  return db.collection(COLLECTION)
-           .find()
-           .sort({ datetime: -1, ts_insert: -1 })
-           .limit(limit)
-           .toArray();
+  return db
+    .collection(COLLECTION)
+    .find()
+    .sort({ datetime: -1, ts_insert: -1 })
+    .limit(limit)
+    .toArray();
 }
