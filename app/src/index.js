@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import pino from "pino";
 import { connectDB } from "./database/db.js";
-import { startMqtt } from "./database/mqtt.js";
+import { startMqtt } from "./Service/mqtt.service.js";
 import routes from "./routes.js";
 
 const log = pino({ level: process.env.LOG_LEVEL || "info" });

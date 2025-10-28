@@ -7,6 +7,10 @@ import { saveGatewayStatus } from '../repository/gateway.repository.js';
 
 const log = pino({ level: process.env.LOG_LEVEL });
 
+const TOPIC_GPS = process.env.TOPIC_GPS ;
+const TOPIC_ESP = process.env.TOPIC_ESP ;
+const TOPIC_GATEWAY = process.env.TOPIC_GATEWAY;
+
 
 export function startMqtt() {
   const brokerUrl = process.env.MQTT_BROKER_URL ;
