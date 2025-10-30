@@ -13,6 +13,6 @@ export async function connectDB() {
 }
 
 export function getDB() {
-  if (!db) throw new Error("MongoDB not initialized, call connectDB() first");
+  if (!db) throw new Error("MongoDB erreur, connectDB() n'a pas été appelé");
   return db;
 }

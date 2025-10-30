@@ -3,12 +3,12 @@ import { getDB } from "../database/db.js";
 const COLLECTION = process.env.COLLECTION_ESP || "espInfo";
 
 /**
- * Expected JSON from ESP (LoRa TX):
+ * Exemple de message ESP32:
  * {
  *   "type":"espinfo","id":"gps-node-01","temp":32.5,"seq":11,
  *   "uptime":3600,"wifi_ssid":"Sk-y","wifi_ip":"192.168.1.20"
  * }
- * or when disconnected:
+ * quand le signal WiFi est null:
  * {
  *   "type":"espinfo","id":"...","temp":...,"seq":...,"uptime":...,
  *   "wifi_rssi":0,"wifi_ip":"0.0.0.0"

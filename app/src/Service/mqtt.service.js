@@ -57,7 +57,7 @@ export function startMqtt() {
           log.warn(`Aucun gestionnaire pour le topic ${topic}`);
       }
     } catch (err) {
-      log.error(err, 'ERREUR LORS DU TRAITEMENT DU MESSAGE');
+      log.error(err, 'Erreur lors du traitement du message MQTT:');
     }
     log.info('---------------------------------');
   });
