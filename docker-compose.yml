@@ -65,6 +65,17 @@ services:
       - iotnet
     depends_on:
       - mongo
+  nginx:
+    build: ./nginx
+    container_name: nginx-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - iotnet
+
 
 volumes:
   mongo_data:
