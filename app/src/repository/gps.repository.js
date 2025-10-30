@@ -28,3 +28,25 @@ export async function getLastGps(limit = 10) {
     .limit(limit)
     .toArray();
 }
+
+
+
+export async function getMapsCoord() {
+  const db = getDB();
+  
+  // On récupère le dernier document GPS (le plus récent)
+  const doc = await db
+    .collection(COLLECTION)
+    .findOne({}, { sort: { datetime: -1, ts_insert: -1 } });
+
+  // Si pas de donnée, on renvoie null
+  if (!doc) return null;
+
+  // On renvoie uniquement ce que la carte a besoin
+  return {
+    latitude: doc.latitude,
+    longitude: doc.longitude,
+    datetime: doc.datetime,
+  };
+}
+

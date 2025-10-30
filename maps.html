@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carte GPS temps réel</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { margin: 0; padding: 0; }
+    #map { width: 100vw; height: 100vh; }
+  </style>
+</head>
+<body>
+
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    // Coordonnées par défaut (centre initial)
+    const defaultLat = 45.5017;
+    const defaultLng = -73.5673;
+
+    // 1️⃣ Initialiser la carte
+    const map = L.map('map').setView([defaultLat, defaultLng], 13);
+
+    // 2️⃣ Fond OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 3️⃣ Marqueur (sera mis à jour)
+    let marker = L.marker([defaultLat, defaultLng]).addTo(map);
+
+    // 4️⃣ Fonction pour mettre à jour la position
+    function updateMarker(lat, lng, date) {
+      marker.setLatLng([lat, lng]);
+      map.setView([lat, lng], map.getZoom());
+      marker.bindPopup(`Dernière position<br><b>${lat.toFixed(5)}, ${lng.toFixed(5)}</b><br>${new Date(date).toLocaleString()}`).openPopup();
+    }
+
+    // 5️⃣ Récupération du dernier point depuis ton API
+    async function refreshMap() {
+      try {
+        const res = await fetch('http://localhost:3000/api/mapsCoord'); // ton route Express
+        const data = await res.json();
+
+        if (Array.isArray(data) && data.length > 0) {
+          const last = data[0]; // si ton API renvoie plusieurs points
+          updateMarker(last.latitude, last.longitude, last.datetime);
+        } else if (data.latitude && data.longitude) {
+          updateMarker(data.latitude, data.longitude, data.datetime);
+        }
+      } catch (err) {
+        console.error('Erreur API :', err);
+      }
+    }
+
+    // 6️⃣ Appel initial + mise à jour toutes les 10s
+    refreshMap();
+    setInterval(refreshMap, 10000);
+  </script>
+</body>
+</html>
